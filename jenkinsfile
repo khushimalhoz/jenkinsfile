@@ -1,0 +1,26 @@
+@Library('shared-library') _
+
+
+pipeline {
+    agent any
+    
+    tools {
+        // Define the Go tool installation named 'Go' using the configured path
+        go 'go1.22.0'
+    }
+    
+    stages {
+        stage('Setup') {
+            steps {
+                gitCheckout()
+            }
+        }
+        
+        stage('Code Compilation') {
+            steps {
+                golangCodeCompilation()
+            }
+        }
+    }
+}
+
