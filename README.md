@@ -7,10 +7,10 @@ In this guide, we will deploy a sample microservice (optionally using an Nginx H
 
 To test the autoscaling functionality, we will use stress-ng to simulate high CPU usage within the pods, allowing us to observe how the HPA reacts by scaling the application horizontally.
 
-By following this guide, you'll gain a practical understanding of Kubernetes autoscaling mechanics and learn how to deploy scalable applications in a local Kubernetes environment using kind.
+**By following this guide, you'll gain a practical understanding of Kubernetes autoscaling mechanics and learn how to deploy scalable applications in a local Kubernetes environment using kind.**
 
 
-## Prerequisites
+## Pre-requisites
 
 | **Tool/Concept**                                | **Description**                                                                                                       |
 |-------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
