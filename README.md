@@ -1,5 +1,14 @@
 # Kubernetes Autoscaling with Metrics Server and Horizontal Pod Autoscaler (HPA) Using kind
 
+## Table of contents
+- [Introduction](#Introduction)
+- [Pre-requisites](#Pre-requisites)
+- [Installation of Metrics server and its configuration](#Installation-of-Metrics-server-and-its-configuration)
+- [Setup your helm chart](#Setup-your-helm-chart)
+- [Monitoring the CPU utilization](#Monitoring-the-CPU-utilization)
+- [Contact Information](#Contact-Information)
+
+
 ## Introduction
 This document outlines the process of setting up Kubernetes autoscaling using the **Horizontal Pod Autoscaler (HPA)** and the **Metrics Server** in a kind (Kubernetes IN Docker) cluster. **Autoscaling** is a crucial feature in Kubernetes, allowing applications to scale dynamically based on real-time resource demands, such as CPU and memory usage.
 
@@ -120,7 +129,7 @@ This configuration is crucial for the Metrics Server to collect and provide reso
 
 These steps should help resolve the certificate validation issue and allow the Metrics Server to function correctly, enabling HPA to retrieve the necessary metrics.
 
-## Setup your helm chart. 
+## Setup your helm chart
 
 As we have configured our metrics server now we need to add **"hpa"** configuration in our helm chart. 
 So, I am taking a nginx helm chart for this POC.
