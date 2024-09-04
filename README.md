@@ -1,5 +1,7 @@
 # Kubernetes Autoscaling with Metrics Server and Horizontal Pod Autoscaler (HPA) Using kind
 
+![image](https://github.com/user-attachments/assets/6e001773-15df-44c4-9bb5-6f1e637d5dd7)
+
 ## Table of contents
 - [Introduction](#Introduction)
 - [Pre-requisites](#Pre-requisites)
