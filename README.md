@@ -70,7 +70,6 @@ This configuration is crucial for the Metrics Server to collect and provide reso
 
 
 - Configure Metric Server
-  > [!NOTE] 
   > If you need to customize the Metric Server, you can edit its deployment.
   > Also you might face a issue in metrics server [ Status 0/1 ] 
   
