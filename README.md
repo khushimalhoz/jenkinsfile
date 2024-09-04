@@ -27,6 +27,7 @@ By following this guide, you'll gain a practical understanding of Kubernetes aut
 > Ensure that the port used by the Metrics Server is allowed in your security group settings. The Metrics Server typically operates on port 10250. You need to configure your security group rules to allow inbound traffic to this port to ensure proper communication between the Metrics Server and your Kubernetes nodes.
 This configuration is crucial for the Metrics Server to collect and provide resource utilization metrics effectively. If you encounter issues with metrics not being collected or displayed, verify that your security group rules are correctly set up.
 
+![image](https://github.com/user-attachments/assets/0b554768-a1e3-4151-abb9-c6967d2121af)
 
 ## Installation of Metrics server and its configuration
 
@@ -42,6 +43,8 @@ This configuration is crucial for the Metrics Server to collect and provide reso
   ```
   You should see a pod named something like metrics-server-xxxx running.
 
+ ![image](https://github.com/user-attachments/assets/8b04a0e9-a0b0-4d2e-8058-7fbf61d97634)
+
 - Check Kubernetes API Server Logs
 
   ```
@@ -53,6 +56,7 @@ This configuration is crucial for the Metrics Server to collect and provide reso
   ```
   kubectl logs -n kube-system <metrics-server-name>
   ```
+![image](https://github.com/user-attachments/assets/618c1839-0d5a-4f71-8ed1-14eedbfbc8b5)
 
 - Check APIService Status:
 
@@ -61,6 +65,9 @@ This configuration is crucial for the Metrics Server to collect and provide reso
   ```
   kubectl get apiservice v1beta1.metrics.k8s.io -o yaml
   ```
+
+![image](https://github.com/user-attachments/assets/ddd5481e-6dbc-4d66-b262-5515ed8adb33)
+
 
 - Configure Metric Server
   > [!NOTE] 
@@ -91,6 +98,9 @@ This configuration is crucial for the Metrics Server to collect and provide reso
       - --kubelet-insecure-tls
     ```
 
+    ![image](https://github.com/user-attachments/assets/d5196851-41fd-4495-a12a-37833ba13ad8)
+
+
  - Save and exit. The Metrics Server will restart with the new configuration.
 
 - Applying the Changes:
@@ -106,6 +116,8 @@ This configuration is crucial for the Metrics Server to collect and provide reso
   ```
   kubectl get apiservice v1beta1.metrics.k8s.io
   ```
+![image](https://github.com/user-attachments/assets/2865822f-77d7-4e7a-af80-467513b9be70)
+
 
 These steps should help resolve the certificate validation issue and allow the Metrics Server to function correctly, enabling HPA to retrieve the necessary metrics.
 
@@ -113,6 +125,146 @@ These steps should help resolve the certificate validation issue and allow the M
 
 As we have configured our metrics server now we need to add "hpa" configuration in our helm chart. 
 So, I am taking a nginx helm chart for this POC.
+
+- Create helm chart
+  ```
+  helm create nginx
+  ```
+
+- Edit the nginx helm
+
+  - ``` values.yaml``` add these configuration in your values file to enable horizontal scalling 
+
+
+  ```
+  hpa:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 80
+
+  serviceAccount:
+     create: true
+     name: ""
+
+   ingress:
+      enabled: false
+      annotations: {}
+      hosts:
+        - host: chart-example.local
+          paths:
+           - path: /
+             pathType: ImplementationSpecific
+    tls: []
+
+   resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+      limits:
+        cpu: "500m"
+        memory: "256Mi"
+
+  ```
+    
+  - ```deployment.yaml ``` add these configuration in your values file to enable horizontal scalling
+
+    ```
+    spec:
+      containers:
+        - name: nginx
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu | default "100m" }}
+              memory: {{ .Values.resources.requests.memory | default "128Mi" }}
+            limits:
+              cpu: {{ .Values.resources.limits.cpu | default "500m" }}
+              memory: {{ .Values.resources.limits.memory | default "256Mi" }}
+     ```
+
+ > [!IMPORTANT]  
+ > For whole helm [Click here]()
+
+- Deploy your helm 
+  ```
+  helm install <release-name> ./
+  ```
+
+  ![image](https://github.com/user-attachments/assets/4764c088-0440-468b-97b5-d57231d86292)
+
+
+## Monitoring the CPU utilization
+
+  Test Scaling:
+  Monitor the HPA and verify it’s receiving CPU metrics by running:
+
+  ```
+  kubectl top pod
+  ```
+ ![image](https://github.com/user-attachments/assets/3ae491fb-fc9d-49bc-9f34-7c69ce8717f4)
+
+  ```
+  kubectl get hpa
+  ```
+![image](https://github.com/user-attachments/assets/8a6ad5aa-8ccc-4fcb-ba00-9df8823d3cd6)
+
+
+> [!IMPORTANT]  
+> If the CPU utilization is zero or very low, it could affect the Horizontal Pod Autoscaler (HPA) and lead to errors. Here’s how:
+> No Metrics Collected: If the Metrics Server isn’t collecting any metrics (e.g., due to an issue with the Metrics Server itself or if the pods are not generating any metrics), the HPA 
+  will not be able to compute the current resource utilization. This can result in errors like ``` FailedComputeMetricsReplicas ```, ```FailedGetResourceMetric ```, ``` 
+  FailedGetResourceMetric ``` and ``` FailedComputeMetricsReplicas ```.
+> For this first you need to put some stress on your pod. 
+
+### Putting stress on the pod
+
+ - Enter into pod
+    
+   ```
+   kubectl exec -it <pod-name> -- /bin/sh
+   ```
+
+- After entering into your pod install ```stress```.
+
+   ```
+   apt-get update && apt-get install -y stress
+   ```
+  Once stress is installed, you can run it directly.
+
+  ```
+  stress --cpu 4
+  ```
+![image](https://github.com/user-attachments/assets/45e6f32a-abcd-46e8-9205-a829bb2f6c16)
+
+  This command will stress 4 CPU cores.
+
+After this you can check how much CPU utilization is there in the pod 
+ 
+  ```
+  kubectl top pod
+  ```
+
+
+When the CPU utilization reaches the threshold which you mentioned in the helm configuration it will create the new pods according to the min and max value you have defined in the helm chart. 
+
+As previously your must have seen that there was only one pod when i deployed the helm, but when i put stress on that one pod it automaticaaly creates new pods when it reaches the threshold.
+
+![image](https://github.com/user-attachments/assets/283974bc-7ee2-4c60-86ed-fd811b3faf67)
+
+
+![image](https://github.com/user-attachments/assets/1361a6c3-00e0-4295-9a2c-f870d899a5ba)
+
+
+As soon as the load on the pod decreases, kubernetes first wait for tha load to stabilize and if for few continuous minutes the load is less then the threshold it will terminate the new pods.
+
+![image](https://github.com/user-attachments/assets/5f7e1afa-e47d-4459-8ed7-88ec27ded641)
+
+![image](https://github.com/user-attachments/assets/2881fbfc-fa33-42e8-9be3-eada74a105b6)
+
 
 
 
