@@ -41,7 +41,7 @@ This configuration is crucial for the Metrics Server to collect and provide reso
   ```
   kubectl get pods -n kube-system
   ```
-  You should see a pod named something like metrics-server-xxxx running.
+  **You should see a pod named something like metrics-server-xxxx running.**
 
  ![image](https://github.com/user-attachments/assets/8b04a0e9-a0b0-4d2e-8058-7fbf61d97634)
 
