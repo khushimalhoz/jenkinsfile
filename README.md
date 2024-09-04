@@ -23,134 +23,96 @@ By following this guide, you'll gain a practical understanding of Kubernetes aut
 | **stress-ng** *(Optional)*                      | Install stress-ng to apply CPU stress to your pods for testing the autoscaler.                                         |
 | **Basic Understanding of Kubernetes and HPA**   | Familiarity with Kubernetes concepts like pods, deployments, services, and Horizontal Pod Autoscaler.                  |
 
-## Note
-
-Ensure that the port used by the Metrics Server is allowed in your security group settings. The Metrics Server typically operates on port 10250. You need to configure your security group rules to allow inbound traffic to this port to ensure proper communication between the Metrics Server and your Kubernetes nodes.
-
+> [!NOTE]  
+> Ensure that the port used by the Metrics Server is allowed in your security group settings. The Metrics Server typically operates on port 10250. You need to configure your security group rules to allow inbound traffic to this port to ensure proper communication between the Metrics Server and your Kubernetes nodes.
 This configuration is crucial for the Metrics Server to collect and provide resource utilization metrics effectively. If you encounter issues with metrics not being collected or displayed, verify that your security group rules are correctly set up.
 
 
+## Installation of Metrics server and its configuration
 
-## Installing the Metrics Server
+- Apply the official Kubernetes YAML for the Metric Server
 
-1. **Apply the Metrics Server Manifest**
-
-   Deploy the Metrics Server using the provided YAML manifest.
-
-   ```bash
-   kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml --validate=false
-   ```
-
-   ```bash
-   kubectl get pods --namespace kube-system
-   ```
-
-![image](https://github.com/user-attachments/assets/6b17540f-7d41-4509-b277-60fabab388c1)
-
-   ```bash
-   kubectl logs -n kube-system -l component=kube-apiserver
-   kubectl logs -n kube-system metrics-server-54bf7cdd6-xhrvj
-   ```
-
-
-   ![image](https://github.com/user-attachments/assets/08ae95bf-7dba-4f8d-a40a-7511614aaca2)
-
-   ## Adding Configuration to Your Helm Chart
-
-   Once you have created the Helm chart for Nginx, you need to customize it to fit your specific requirements. Follow these steps to add your configuration:
-
-1. **Edit the `values.yaml` File**
-
- Open the `values.yaml` file in your Helm chart directory. Add the following configuration to enable Horizontal Pod Autoscaler (HPA) and define resource requests and limits for your Nginx deployment. You can adjust the `targetCPUUtilizationPercentage` as needed; in this example, it is set to 50%.
-
-   ```yaml
-   hpa:
-     enabled: true
-     minReplicas: 1
-     maxReplicas: 5
-     targetCPUUtilizationPercentage: 50
-
-   resources:
-     requests:
-       cpu: "100m"
-       memory: "128Mi"
-     limits:
-       cpu: "500m"
-       memory: "256Mi"
-```
-
-2. Configure the hpa.yaml File
-
-Create or update the hpa.yaml file in the templates/ directory of your Helm chart with the following configuration. This file defines how the HPA resource is created and managed:
-
-```yaml
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: {{ include "nginx.fullname" . }}
-  minReplicas: {{ .Values.hpa.minReplicas }}
-  maxReplicas: {{ .Values.hpa.maxReplicas }}
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: {{ .Values.hpa.targetCPUUtilizationPercentage }}
-```
-
-3. Update Template Files for Resources
-
-Ensure that your deployment.yaml file in the templates/ directory includes the resource requests and limits defined in values.yaml.
-
-```yaml 
-resources:
-  requests:
-    cpu: {{ .Values.resources.requests.cpu }}
-    memory: {{ .Values.resources.requests.memory }}
-  limits:
-    cpu: {{ .Values.resources.limits.cpu }}
-    memory: {{ .Values.resources.limits.memory }}
-```
-
-## Full Helm Chart Documentation
-
-For a comprehensive guide and detailed configuration options for the Helm chart, please refer to the full documentation available [here]([https://github.com/your-repo/your-chart-docs](https://github.com/khushimalhoz/jenkinsfile/tree/main/nginx)).
-
-This documentation provides additional insights into configuring and deploying the Helm chart, including advanced settings and usage examples.
-
-
-## After Running Your Helm Chart
-
-Once you have deployed your Helm chart, follow these steps to ensure everything is running smoothly and to verify that your configurations are applied correctly:
-
-1. **Check Pod Status**
-
-   Verify that the Nginx pods are running and are in the desired state.
-
-   ```bash
-   kubectl get pods
-   ```
-2. Verify HPA
-
-Check the status of the Horizontal Pod Autoscaler to ensure it is active and managing the deployment as expected.
-
-  ```bash
-  kubectl get hpa
+  ```
+  kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml --validate=false
   ```
 
-3. Adjust Configuration (if necessary)
+- Verify that the Metric Server is running
+  ```
+  kubectl get pods -n kube-system
+  ```
+  You should see a pod named something like metrics-server-xxxx running.
 
-If the deployment does not behave as expected, revisit your values.yaml and template files to adjust configurations. After making changes, apply the updated Helm chart:
+- Check Kubernetes API Server Logs
 
-```bash
-helm upgrade <release-name> ./
-```
+  ```
+  kubectl logs -n kube-system -l component=kube-apiserver
+  ```
 
-## After making all necessary configuration you can check you services.
-```bash
-kubectl get all
-```
+- Check the Metrics Server Pod Logs
+  
+  ```
+  kubectl logs -n kube-system <metrics-server-name>
+  ```
 
-![image](https://github.com/user-attachments/assets/eaf34bc2-7c6d-45d7-a0d5-00071a4ec8bb)
+- Check APIService Status:
+
+  Verify the status of the v1beta1.metrics.k8s.io APIService
+
+  ```
+  kubectl get apiservice v1beta1.metrics.k8s.io -o yaml
+  ```
+
+- Configure Metric Server
+  > [!NOTE] 
+  > If you need to customize the Metric Server, you can edit its deployment.
+  > Also you might face a issue in metrics server [ Status 0/1 ] 
+  
+  Error in the logs of metrics server. 
+  ```
+  x509: cannot validate certificate for 172.18.0.2 because it doesn't contain any IP SANs
+  ```
+  > The issue you're facing is related to the TLS certificate validation when the Metrics Server tries to scrape metrics from the nodes. Specifically, the error x509: cannot validate certificate for 172.18.0.2 because it doesn't contain any IP SANs means that the TLS certificate presented by the node does not have the required Subject Alternative Name (SAN) entries for the IP addresses, which is why the connection is being rejected.
+
+   - Solution:
+  > Use Insecure TLS Skipping:
+   You can configure the Metrics Server to skip TLS verification, which is often necessary in non-production environments like Kind. This is already set up in your APIService with insecureSkipTLSVerify: true, but you might need to apply 
+   additional settings to the Metrics Server deployment.
+
+   Edit the Metrics Server deployment to include the ```--kubelet-insecure-tls``` flag:
+    
+  ```
+  kubectl edit deployment metrics-server -n kube-system
+  ```
+
+  - General Configuration for metrics server
+
+    ```
+    args:
+      - --kubelet-insecure-tls
+    ```
+
+ - Save and exit. The Metrics Server will restart with the new configuration.
+
+- Applying the Changes:
+  After making any of the above changes, verify the status of the Metrics Server:
+
+  ```
+   kubectl get pods -n kube-system
+   kubectl logs -n kube-system -l k8s-app=metrics-server
+  ```
+
+  Once the Metrics Server is running without errors, check the APIService again:
+
+  ```
+  kubectl get apiservice v1beta1.metrics.k8s.io
+  ```
+
+These steps should help resolve the certificate validation issue and allow the Metrics Server to function correctly, enabling HPA to retrieve the necessary metrics.
+
+## Setup your helm chart. 
+
+As we have configured our metrics server now we need to add "hpa" configuration in our helm chart. 
+So, I am taking a nginx helm chart for this POC.
+
+
+
