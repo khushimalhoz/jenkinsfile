@@ -198,7 +198,7 @@ So, I am taking a nginx helm chart for this POC.
      ```
 
  > [!IMPORTANT]  
- > If you want extra configuration of helm chart [Click here]()
+ > If you want extra configuration of helm chart [Click here](https://github.com/khushimalhoz/jenkinsfile/tree/main/nginx)
 
 - Deploy your helm 
   ```
