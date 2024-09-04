@@ -73,13 +73,13 @@ This configuration is crucial for the Metrics Server to collect and provide reso
   > If you need to customize the Metric Server, you can edit its deployment.
   > Also you might face a issue in metrics server [ Status 0/1 ] 
   
-  Error in the logs of metrics server. 
+  **Error in the logs of metrics server.** 
   ```
   x509: cannot validate certificate for 172.18.0.2 because it doesn't contain any IP SANs
   ```
   > The issue you're facing is related to the TLS certificate validation when the Metrics Server tries to scrape metrics from the nodes. Specifically, the error x509: cannot validate certificate for 172.18.0.2 because it doesn't contain any IP SANs means that the TLS certificate presented by the node does not have the required Subject Alternative Name (SAN) entries for the IP addresses, which is why the connection is being rejected.
 
-   - Solution:
+   - **Solution:**
   > Use Insecure TLS Skipping:
    You can configure the Metrics Server to skip TLS verification, which is often necessary in non-production environments like Kind. This is already set up in your APIService with insecureSkipTLSVerify: true, but you might need to apply 
    additional settings to the Metrics Server deployment.
@@ -122,7 +122,7 @@ These steps should help resolve the certificate validation issue and allow the M
 
 ## Setup your helm chart. 
 
-As we have configured our metrics server now we need to add "hpa" configuration in our helm chart. 
+As we have configured our metrics server now we need to add **"hpa"** configuration in our helm chart. 
 So, I am taking a nginx helm chart for this POC.
 
 - Create helm chart
@@ -186,7 +186,7 @@ So, I am taking a nginx helm chart for this POC.
      ```
 
  > [!IMPORTANT]  
- > For whole helm [Click here]()
+ > If you want extra configuration of helm chart [Click here]()
 
 - Deploy your helm 
   ```
@@ -198,7 +198,7 @@ So, I am taking a nginx helm chart for this POC.
 
 ## Monitoring the CPU utilization
 
-  Test Scaling:
+  **Test Scaling:**
   Monitor the HPA and verify it’s receiving CPU metrics by running:
 
   ```
@@ -250,7 +250,7 @@ After this you can check how much CPU utilization is there in the pod
 
 When the CPU utilization reaches the threshold which you mentioned in the helm configuration it will create the new pods according to the min and max value you have defined in the helm chart. 
 
-As previously your must have seen that there was only one pod when i deployed the helm, but when i put stress on that one pod it automaticaaly creates new pods when it reaches the threshold.
+As previously your must have seen that there was only one pod when I deployed the helm, but when I put stress on that one pod it automaticaaly creates new pods when it reaches the threshold.
 
 ![image](https://github.com/user-attachments/assets/283974bc-7ee2-4c60-86ed-fd811b3faf67)
 
