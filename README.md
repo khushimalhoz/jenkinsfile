@@ -23,6 +23,13 @@ By following this guide, you'll gain a practical understanding of Kubernetes aut
 | **stress-ng** *(Optional)*                      | Install stress-ng to apply CPU stress to your pods for testing the autoscaler.                                         |
 | **Basic Understanding of Kubernetes and HPA**   | Familiarity with Kubernetes concepts like pods, deployments, services, and Horizontal Pod Autoscaler.                  |
 
+## Note
+
+Ensure that the port used by the Metrics Server is allowed in your security group settings. The Metrics Server typically operates on port 10250. You need to configure your security group rules to allow inbound traffic to this port to ensure proper communication between the Metrics Server and your Kubernetes nodes.
+
+This configuration is crucial for the Metrics Server to collect and provide resource utilization metrics effectively. If you encounter issues with metrics not being collected or displayed, verify that your security group rules are correctly set up.
+
+
 
 ## Installing the Metrics Server
 
@@ -109,7 +116,7 @@ resources:
 
 ## Full Helm Chart Documentation
 
-For a comprehensive guide and detailed configuration options for the Helm chart, please refer to the full documentation available [here](https://github.com/your-repo/your-chart-docs).
+For a comprehensive guide and detailed configuration options for the Helm chart, please refer to the full documentation available [here]([https://github.com/your-repo/your-chart-docs](https://github.com/khushimalhoz/jenkinsfile/tree/main/nginx)).
 
 This documentation provides additional insights into configuring and deploying the Helm chart, including advanced settings and usage examples.
 
