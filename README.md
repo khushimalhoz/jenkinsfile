@@ -1,7 +1,7 @@
 # Kubernetes Autoscaling with Metrics Server and Horizontal Pod Autoscaler (HPA) Using kind
 
 ## Introduction
-This document outlines the process of setting up Kubernetes autoscaling using the Horizontal Pod Autoscaler (HPA) and the Metrics Server in a kind (Kubernetes IN Docker) cluster. Autoscaling is a crucial feature in Kubernetes, allowing applications to scale dynamically based on real-time resource demands, such as CPU and memory usage.
+This document outlines the process of setting up Kubernetes autoscaling using the **Horizontal Pod Autoscaler (HPA)** and the **Metrics Server** in a kind (Kubernetes IN Docker) cluster. **Autoscaling** is a crucial feature in Kubernetes, allowing applications to scale dynamically based on real-time resource demands, such as CPU and memory usage.
 
 In this guide, we will deploy a sample microservice (optionally using an Nginx Helm chart) and configure the Metrics Server to monitor resource usage. We'll then set up the HPA to automatically scale the number of pods based on CPU utilization, ensuring optimal performance and resource efficiency.
 
