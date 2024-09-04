@@ -86,14 +86,17 @@ This configuration is crucial for the Metrics Server to collect and provide reso
   ```
   x509: cannot validate certificate for 172.18.0.2 because it doesn't contain any IP SANs
   ```
-  > The issue you're facing is related to the TLS certificate validation when the Metrics Server tries to scrape metrics from the nodes. Specifically, the error x509: cannot validate certificate for 172.18.0.2 because it doesn't contain any IP SANs means that the TLS certificate presented by the node does not have the required Subject Alternative Name (SAN) entries for the IP addresses, which is why the connection is being rejected.
+  > The issue you're facing is related to the TLS certificate validation when the Metrics Server tries to scrape metrics from the nodes. Specifically, the error x509: cannot validate 
+    certificate for 172.18.0.2 because it doesn't contain any IP SANs means that the TLS certificate presented by the node does not have the required Subject Alternative Name (SAN) 
+    entries for the IP addresses, which is why the connection is being rejected.
 
    - **Solution:**
   > Use Insecure TLS Skipping:
-   You can configure the Metrics Server to skip TLS verification, which is often necessary in non-production environments like Kind. This is already set up in your APIService with insecureSkipTLSVerify: true, but you might need to apply 
-   additional settings to the Metrics Server deployment.
+    You can configure the Metrics Server to skip TLS verification, which is often necessary in non-production environments like Kind. This is already set up in your APIService with 
+    insecureSkipTLSVerify: true, but you might need to apply 
+    additional settings to the Metrics Server deployment.
 
-   Edit the Metrics Server deployment to include the ```--kubelet-insecure-tls``` flag:
+    Edit the Metrics Server deployment to include the ```--kubelet-insecure-tls``` flag:
     
   ```
   kubectl edit deployment metrics-server -n kube-system
@@ -248,9 +251,9 @@ So, I am taking a nginx helm chart for this POC.
   ```
 ![image](https://github.com/user-attachments/assets/45e6f32a-abcd-46e8-9205-a829bb2f6c16)
 
-  This command will stress 4 CPU cores.
+   This command will stress 4 CPU cores.
 
-After this you can check how much CPU utilization is there in the pod 
+   After this you can check how much CPU utilization is there in the pod 
  
   ```
   kubectl top pod
