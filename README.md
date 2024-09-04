@@ -265,5 +265,10 @@ As soon as the load on the pod decreases, kubernetes first wait for tha load to 
 ![image](https://github.com/user-attachments/assets/2881fbfc-fa33-42e8-9be3-eada74a105b6)
 
 
+## Contact Information
+
+| Name            | Email Address                        |
+|-----------------|--------------------------------------|
+| Khushi Malhotra | khushi.malhotra.snaatak@mygurukulam.co |
 
 
