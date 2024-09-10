@@ -19,7 +19,7 @@ pipeline {
         )
         string(
             name: 'PROJECT_ID',
-            defaultValue: 'dev-data-platform-294611',
+            defaultValue: 'quantum-ally-428107-d9',
             description: 'Google project ID to be used'
         )
         string(
@@ -110,4 +110,3 @@ pipeline {
         }
     }
 }
-
