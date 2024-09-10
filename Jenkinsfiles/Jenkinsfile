@@ -1,1 +1,113 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(
+            name: 'REPO_URL',
+            defaultValue: 'https://github.com/7828143960/shreya_private.git',
+            description: 'GitHub repository URL'
+        )
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ["DEV", "PROD"],
+            description: 'Environment for which to create Pub/Sub resources'
+        )
+        string(
+            name: 'BRANCH',
+            defaultValue: 'snaatak-Jenkinsfile',
+            description: 'Git branch to build'
+        )
+        string(
+            name: 'PROJECT_ID',
+            defaultValue: 'dev-data-platform-294611',
+            description: 'Google project ID to be used'
+        )
+        string(
+            name: 'TOPIC_NAME',
+            defaultValue: 'GCP_Terraform',
+            description: 'Name of the Pub/Sub topic'
+        )
+        string(
+            name: 'SUBSCRIBER_NAME',
+            defaultValue: 'my-subscription',
+            description: 'Name of the subscriber for the push subscription'
+        )
+        string(
+            name: 'SERVICE_ACCOUNT',
+            defaultValue: 'gcp-service-account',
+            description: 'Service account email to be used'
+        )
+        string(
+            name: 'MESSAGE_RETENTION_DURATION',
+            defaultValue: '3600s',
+            description: 'Retention duration for Pub/Sub messages (e.g., 600s for 10 minutes)'
+        )
+        string(
+            name: 'DEAD_LETTER_TOPIC',
+            defaultValue: 'dead-letter-topic',
+            description: 'Name of the dead letter topic for failed messages'
+        )
+        string(
+            name: 'MAX_DELIVERY_ATTEMPTS',
+            defaultValue: '5',
+            description: 'Max delivery attempts before sending to the dead letter topic'
+        )
+        string(
+            name: 'ALLOWED_STORAGE_REGIONS',
+            defaultValue: 'us-central1,europe-west1',
+            description: 'Comma-separated list of allowed storage regions for messages'
+        )
+        string(
+            name: 'ACK_DEADLINE_SECONDS',
+            defaultValue: '10',
+            description: 'Time limit for message acknowledgment in seconds'
+        )
+        string(
+            name: 'PUSH_ENDPOINT',
+            defaultValue: 'https://example.com/push-endpoint',
+            description: 'The URL for push subscriptions to deliver messages'
+        )
+    }
+
+    environment {
+        PROJECT_ID = "${params.PROJECT_ID}"
+        SERVICE_ACCOUNT = credentials('gcp-service-account') // Use Jenkins credentials for GCP service account
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: "${params.BRANCH}", url: "${params.REPO_URL}"
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                dir("Jenkinsfile/terraform/${params.ENVIRONMENT}") { // Adjusted the path to your Terraform code
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                dir("Jenkinsfile/terraform/${params.ENVIRONMENT}") { // Adjusted the path to your Terraform code
+                    sh """
+                    terraform apply -auto-approve \
+                        -var="project_id=${env.PROJECT_ID}" \
+                        -var="topic_name=${params.TOPIC_NAME}" \
+                        -var="subscriber_name=${params.SUBSCRIBER_NAME}" \
+                        -var="service_account=${env.SERVICE_ACCOUNT}" \
+                        -var="message_retention_duration=${params.MESSAGE_RETENTION_DURATION}" \
+                        -var="dead_letter_topic=${params.DEAD_LETTER_TOPIC}" \
+                        -var="max_delivery_attempts=${params.MAX_DELIVERY_ATTEMPTS}" \
+                        -var="allowed_storage_regions=${params.ALLOWED_STORAGE_REGIONS}" \
+                        -var="ack_deadline_seconds=${params.ACK_DEADLINE_SECONDS}" \
+                        -var="push_endpoint=${params.PUSH_ENDPOINT}"
+                    """
+                }
+            }
+        }
+    }
+}
 
