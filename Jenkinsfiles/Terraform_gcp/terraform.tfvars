@@ -1,0 +1,10 @@
+project_id                 = "quantum-ally-428107-d9"
+topic_name                 = "subscriber_topic"
+subscriber_name            = "iam_subscriber"
+region                     = "us-central1"
+message_retention_duration = "3600s"
+max_delivery_attempts      = "5"
+allowed_storage_regions    = ["us-central1", "us-east1"]
+ack_deadline_seconds       = "10"
+dead_letter_topic          = "dead_messages"
+service_account            = "khushi@quantum-ally-428107-d9.iam.gserviceaccount.com"
