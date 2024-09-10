@@ -7,11 +7,11 @@ pipeline {
             defaultValue: 'https://github.com/7828143960/shreya_private.git',
             description: 'GitHub repository URL'
         )
-        choice(
-            name: 'ENVIRONMENT',
-            choices: ["DEV", "PROD"],
-            description: 'Environment for which to create Pub/Sub resources'
-        )
+        // choice(
+        //     name: 'ENVIRONMENT',
+        //     choices: ["DEV", "PROD"],
+        //     description: 'Environment for which to create Pub/Sub resources'
+        // )
         string(
             name: 'BRANCH',
             defaultValue: 'snaatak-Jenkinsfile',
@@ -83,7 +83,7 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                dir("Jenkinsfile/terraform/${params.ENVIRONMENT}") { // Adjusted the path to your Terraform code
+                dir("Jenkinsfile/terraform/") { // Adjusted the path to your Terraform code
                     sh 'terraform init'
                 }
             }
@@ -91,7 +91,7 @@ pipeline {
 
         stage('Terraform Apply') {
             steps {
-                dir("Jenkinsfile/terraform/${params.ENVIRONMENT}") { // Adjusted the path to your Terraform code
+                dir("Jenkinsfile/terraform/") { // Adjusted the path to your Terraform code
                     sh """
                     terraform apply -auto-approve \
                         -var="project_id=${env.PROJECT_ID}" \
