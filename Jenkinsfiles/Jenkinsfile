@@ -62,11 +62,11 @@ pipeline {
             defaultValue: '10',
             description: 'Time limit for message acknowledgment in seconds'
         )
-        string(
-            name: 'PUSH_ENDPOINT',
-            defaultValue: 'https://example.com/push-endpoint',
-            description: 'The URL for push subscriptions to deliver messages'
-        )
+        // string(
+        //     name: 'PUSH_ENDPOINT',
+        //     defaultValue: 'https://example.com/push-endpoint',
+        //     description: 'The URL for push subscriptions to deliver messages'
+        // )
     }
 
     environment {
@@ -103,7 +103,6 @@ pipeline {
                         -var="max_delivery_attempts=${params.MAX_DELIVERY_ATTEMPTS}" \
                         -var="allowed_storage_regions=${params.ALLOWED_STORAGE_REGIONS}" \
                         -var="ack_deadline_seconds=${params.ACK_DEADLINE_SECONDS}" \
-                        -var="push_endpoint=${params.PUSH_ENDPOINT}"
                     """
                 }
             }
