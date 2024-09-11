@@ -91,7 +91,7 @@ pipeline {
                         -var="message_retention_duration=${params.MESSAGE_RETENTION_DURATION}" \
                         -var="dead_letter_topic=${params.DEAD_LETTER_TOPIC}" \
                         -var="max_delivery_attempts=${params.MAX_DELIVERY_ATTEMPTS}" \
-                        -var="allowed_storage_regions=${params.ALLOWED_STORAGE_REGIONS}" \
+                        -var="allowed_storage_regions=\\"[${params.ALLOWED_STORAGE_REGIONS}]\\"" \
                         -var="ack_deadline_seconds=${params.ACK_DEADLINE_SECONDS}" \
                     """
                 }
