@@ -4,17 +4,12 @@ pipeline {
     parameters {
         string(
             name: 'REPO_URL',
-            defaultValue: 'https://github.com/7828143960/shreya_private.git',
+            defaultValue: 'https://github.com/khushimalhoz/jenkinsfile.git',
             description: 'GitHub repository URL'
         )
-        // choice(
-        //     name: 'ENVIRONMENT',
-        //     choices: ["DEV", "PROD"],
-        //     description: 'Environment for which to create Pub/Sub resources'
-        // )
         string(
             name: 'BRANCH',
-            defaultValue: 'snaatak-Jenkinsfile',
+            defaultValue: 'main',
             description: 'Git branch to build'
         )
         string(
@@ -24,17 +19,17 @@ pipeline {
         )
         string(
             name: 'TOPIC_NAME',
-            defaultValue: 'GCP_Terraform',
+            defaultValue: 'subscriber_topic',
             description: 'Name of the Pub/Sub topic'
         )
         string(
             name: 'SUBSCRIBER_NAME',
-            defaultValue: 'my-subscription',
+            defaultValue: 'iam_subscriber',
             description: 'Name of the subscriber for the push subscription'
         )
         string(
             name: 'SERVICE_ACCOUNT',
-            defaultValue: 'gcp-service-account',
+            defaultValue: 'khushi@quantum-ally-428107-d9.iam.gserviceaccount.com',
             description: 'Service account email to be used'
         )
         string(
@@ -44,7 +39,7 @@ pipeline {
         )
         string(
             name: 'DEAD_LETTER_TOPIC',
-            defaultValue: 'dead-letter-topic',
+            defaultValue: 'dead_messages',
             description: 'Name of the dead letter topic for failed messages'
         )
         string(
@@ -54,7 +49,7 @@ pipeline {
         )
         string(
             name: 'ALLOWED_STORAGE_REGIONS',
-            defaultValue: 'us-central1,europe-west1',
+            defaultValue: 'us-central1,us-east1',
             description: 'Comma-separated list of allowed storage regions for messages'
         )
         string(
@@ -62,11 +57,6 @@ pipeline {
             defaultValue: '10',
             description: 'Time limit for message acknowledgment in seconds'
         )
-        // string(
-        //     name: 'PUSH_ENDPOINT',
-        //     defaultValue: 'https://example.com/push-endpoint',
-        //     description: 'The URL for push subscriptions to deliver messages'
-        // )
     }
 
     environment {
@@ -83,7 +73,7 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                dir("Jenkinsfile/terraform/") { // Adjusted the path to your Terraform code
+                dir("Jenkinsfiles/Terraform_gcp/") { // Adjusted the path to your Terraform code
                     sh 'terraform init'
                 }
             }
@@ -91,7 +81,7 @@ pipeline {
 
         stage('Terraform Apply') {
             steps {
-                dir("Jenkinsfile/terraform/") { // Adjusted the path to your Terraform code
+                dir("Jenkinsfiles/Terraform_gcp/") { // Adjusted the path to your Terraform code
                     sh """
                     terraform apply -auto-approve \
                         -var="project_id=${env.PROJECT_ID}" \
